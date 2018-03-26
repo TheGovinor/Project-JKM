@@ -78,6 +78,7 @@
 
     signSignIn.onclick = function(){
         socket.emit('signIn', {username:signUser.value, password:signPass.value});
+        
     }
     signSignUp.onclick = function(){
         socket.emit('signUp',{username:signUser.value, password:signPass.value});
@@ -257,6 +258,12 @@
     {
         console.log(data);
     });
+    socket.on('full', function()
+    {
+        alert("Game is Full");
+        window.location.replace("index.html");
+    });
+    
 
     chatForm.onsubmit = function(e){
         e.preventDefault();

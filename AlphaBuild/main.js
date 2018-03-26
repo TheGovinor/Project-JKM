@@ -13,6 +13,7 @@ serv.listen(2000);
 console.log('server started')
 
 var SOCKET_LIST = {};
+var playerID = [0, 0, 0, 0];
 
 var Entity = function(param) {
     var self = {
@@ -190,12 +191,30 @@ var Player = function(param){
 Player.list = {};
 Player.onConnect = function(socket)
 {
+    //max players is working, next add check to see if reconnecting or not using distinct login credentials.
     var map = 'test';
+    for (var i = 0; i < 4; i++)
+    {
+        if (playerID[i] == 0)
+        {
+            console.log(i);
+            playerID[i] = socket.id;
+            var player = Player(
+            {
+                id:socket.id,
+                map:map,
+            });
+            break;
+        }
+        else if (i == 3 && playerID != 0)
+        {
+            socket.emit('full');
+            return false;
+        }
+    }
+    
     //set function to change map here
-    var player = Player({
-        id:socket.id,
-        map:map,
-    });
+    
     
     socket.on('keyPress',function(data)
     {
@@ -230,8 +249,15 @@ Player.getAllInitPack = function(){
     return players;
 }
 Player.onDisconnect = function(socket){
-    delete Player.list(socket.id);
-    removePack.player.push(socket.id);
+    for (var i = 0; i < 4; i++)
+    {
+        if (playerID[i] == socket.id)
+        {
+            playerID[i] = 0;
+            delete Player.list(socket.id);
+            removePack.player.push(socket.id);
+        }
+    }   
 }
 Player.update = function(){
     var pack = [];
